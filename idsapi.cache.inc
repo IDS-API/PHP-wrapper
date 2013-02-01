@@ -37,7 +37,7 @@ class IdsApiCache{
       }
     }
     else {
-      if (mkdir($this->repository, 0775)) {
+      if (mkdir($this->repository)) {
         return TRUE;
       }
       else {
@@ -84,14 +84,9 @@ class IdsApiCache{
 	}
 	
 	public function clear_all()	{
-		$file_extension = '.' . $this->file_extension;
-		if ($handle = opendir($this->repository)) {
-	    while (false !== ($file = readdir($handle))) {
-   			if(substr($file, strlen($file_extension)*-1) === $file_extension && $file != '.' && $file != '..')
-	    		file_put_contents($this->repository .  '/'  . $file, '');
-	    }
-	    closedir($handle);
-		}
+    if ($this->dir_writable()) {
+      array_map('unlink', glob($this->repository . '/*'));
+    }
 	}
 	
 	public function clear_group($group)	{

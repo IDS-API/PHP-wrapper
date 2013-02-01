@@ -11,7 +11,17 @@ require_once('idsapi.default.inc');
 require_once('idsapi.object.inc'); 
 require_once('idsapi.request.inc'); 
 require_once('idsapi.response.inc');
-require_once('idsapi.generic_cache.inc'); 
+
+switch (IDS_API_ENVIRONMENT) {
+  case 'drupal':
+    require_once('cms/idsapi.drupal.inc');
+    break;
+  case 'wordpress':
+    // In this case we also use the generic functions.
+    require_once('cms/idsapi.wordpress.inc');
+  default:
+    require_once('idsapi.generic.inc');
+}
 
 class IdsApiWrapper {
 
@@ -82,8 +92,7 @@ class IdsApiWrapper {
   * @param string $api_key - IDS API token guid.
   */
   public function validateKey($api_key) {
-    $this->search('regions', IDS_API_DEFAULT_DATASET, $api_key, 'short');
-    return (!$this->getResponse()->isEmpty());
+    return (!$this->search('regions', IDS_API_DEFAULT_DATASET, $api_key, 'short')->isEmpty());
   }
 
   /**

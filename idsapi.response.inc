@@ -90,12 +90,12 @@ class IdsApiResponse {
   * Return an array with an array of retrieved non-archived object's titles.
   * @return array - titles of retrieved items indexed by object_id.
   */
-  function getArrayTitles($add_padding = FALSE, $padding_str = '') {
+  function getArrayTitles($padding_str = '') {
     $array_objects = array();
     foreach ($this->results as $object) {
       if ((!isset($object->archived)) || ($object->archived !== 'true')) {
         $value = $object->title;
-        if ($add_padding) {
+        if ($padding_str) {
           if (isset($object->level)) {
             $level = $object->level;
             $padding = strlen($value) + strlen($padding_str)*($level - 1);

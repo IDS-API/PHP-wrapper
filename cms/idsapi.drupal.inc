@@ -5,16 +5,6 @@
  *
  */
 
-/**
-* Define the environment we are working in.
-*/
-if (defined('IDS_API_ENVIRONMENT')) {
-  return;
-}
-else {
-  define('IDS_API_ENVIRONMENT', 'drupal');
-}
-
 // Call the URL.
 function idsapi_get_data($url) {
   $response = drupal_http_request($url);

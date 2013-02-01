@@ -5,16 +5,6 @@
  *
  */
 
-/**
-* Define the environment we are working in.
-*/
-if (defined('IDS_API_ENVIRONMENT')) {
-  return;
-}
-else {
-  define('IDS_API_ENVIRONMENT', 'wordpress');
-}
-
 global $ids_assets;
 global $ids_datasets; 
 global $ids_categories;
