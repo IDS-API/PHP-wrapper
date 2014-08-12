@@ -210,6 +210,15 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
   // Language. String. The language in which the title, headline and description are written.
   public $language_name;
 
+  // Language ID. Int. The language in which the title, headline and description are written (language IDS numeric code corresponding to language_name).
+  public $language_id;
+
+  // Metadata languages. Languages (two-letter code) in which the translatable metadata (title, description) is available. Array of strings.
+  public $metadata_languages;
+
+  // Language array. Holds translatable metadata (title, description) in all available languages.
+  public $language_array;
+
   // Publication date. Date (example: 2004-01-01 00:00:00). Year that the research document was first published.
   public $publication_date;
 
@@ -243,6 +252,15 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
     }
     if (isset($object['language_name'])) {
       $this->language_name = $object['language_name'];
+    }
+    if (isset($object['language_id'])) {
+      $this->language_id = $object['language_id'];
+    }
+    if (isset($object['metadata_languages'])) {
+      $this->metadata_languages = $object['metadata_languages'];
+    }
+    if (isset($object['language_array'])) {
+      $this->language_array = build_array_languages($object['language_array']);
     }
     if (isset($object['publication_date'])) {
       $this->publication_date = strtotime($object['publication_date']);
@@ -535,7 +553,7 @@ class IdsApiCount {
 
 function build_array_categories($array_categories) {
   $categories = array();
-  foreach (current($array_categories) as $key => $category) {
+  foreach (current($array_categories) as $category) {
     $categories[] = new IdsApiObjectCategory($category);
   }
   return $categories;
@@ -543,7 +561,7 @@ function build_array_categories($array_categories) {
 
 function build_array_countries($array_countries) {
   $countries = array();
-  foreach (current($array_countries) as $key => $country) {
+  foreach (current($array_countries) as $country) {
     $countries[] = new IdsApiObjectCountry($country);
   }
   return $countries;
@@ -551,10 +569,23 @@ function build_array_countries($array_countries) {
 
 function build_array_organisations($array_organisations) {
   $organisations = array();
-  foreach (current($array_organisations) as $key => $organisation) {
+  foreach (current($array_organisations) as $organisation) {
     $organisations[] = new IdsApiObjectAssetOrganisation($organisation);
   }
   return $organisations;
+}
+
+function build_array_languages($language_array) {
+  $languages = array();
+  foreach (current($language_array) as $language) {
+    if (isset($language['isocode'])) {
+      $languages[$language['isocode']] = array();
+      foreach ($language as $field => $value) {
+        $languages[$language['isocode']][$field] = $value;
+      }      
+    }
+  }
+  return $languages;
 }
 
 

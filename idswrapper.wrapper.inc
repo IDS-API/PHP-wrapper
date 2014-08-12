@@ -19,7 +19,7 @@ switch (IDS_API_ENVIRONMENT) {
     require_once('cms/idswrapper.drupal.inc');
     break;
   case 'wordpress':
-    // In this case we also use the generic functions.
+    // In this case we also include the generic functions.
     require_once('cms/idswrapper.wordpress.inc');
   default:
     require_once('idswrapper.generic.inc');
@@ -142,21 +142,20 @@ class IdsApiWrapper {
 
   /**
   * Method used to set additional fields to be included in the response to the request.
-  * @param string $key - extra field.
-  * @param string $value - value of the field.
+  * @param array $extra_fields - extra fields to be returned (in short responses). (eg. array('headline', 'category_theme_array')).
   */
   public function setExtraFields($extra_fields) {
-    foreach ($extra_fields as $key => $value) {
-      $this->setExtraField($key, $value);
+    foreach ($extra_fields as $field) {
+      $this->setExtraField($field);
     }
   }
 
   /**
   * Method used to set additional fields to be included in the response to the request.
-  * @param array $extra_fields - extra fields to be returned (in short responses). (eg. array('headline', 'category_theme_array')).
+  * @param string $field - extra field to be included in the response.
   */
-  public function setExtraField($key, $value) {
-    $this->request->setExtraField($key, $value);
+  public function setExtraField($field) {
+    $this->request->setExtraField($field);
   }
 
   /**
@@ -284,16 +283,24 @@ class IdsApiWrapper {
     }
     else {
       if ($this->request->getTypeRequest() == 'count') {
-        list($results, $total_results) = $this->getDecodedCountResults($this->request->getUrl());
+        list($results, $total_results) = $this->getDecodedCountResults($this->getUrl());
         $object_type = $this->request->getCountCategory() . '_count';
       }
       else {
-        list($results, $total_results) = $this->getDecodedResults($this->request->getUrl(), 0);
+        list($results, $total_results) = $this->getDecodedResults($this->getUrl(), 0);
       }
       $this->cacheSet(array($results, $total_results));
     }
     $response = new IdsApiResponse($results, $this->request->getFormat(), $object_type, $total_results, $this->request->getSite(), $cached);
     return $response;
+  }
+
+  /**
+  * Retrieve the request's url (if set).
+  * @return string -  URL of the API request.
+  */
+  public function getUrl() {
+    return $this->request->getUrl();
   }
 
 
@@ -449,13 +456,12 @@ class IdsApiWrapper {
   * @param array $data - text of the response corresponding to the current request to be cached.
   */
   protected function cacheSet($data) {
-    if ($data === FALSE) {
-      // If we don't get a valid response we set a temporary cache to avoid making repeated failed requests in a short period of time.
-      idsapi_cache_set($this->cacheId(), FALSE, IDS_API_CACHE_REQUESTS, 300);
+    if (!$data[1]) {
+      // If we get an empty response we set a 5 min. temporary cache to avoid making repeated failed requests in a short period of time.
+      idsapi_cache_set($this->cacheId(), $data, IDS_API_CACHE_REQUESTS, 300);
     }
     else {
-      $expire = IDS_API_DEFAULT_CACHE_TIME;
-      idsapi_cache_set($this->cacheId(), $data, IDS_API_CACHE_REQUESTS, $expire);
+      idsapi_cache_set($this->cacheId(), $data, IDS_API_CACHE_REQUESTS, IDS_API_DEFAULT_CACHE_TIME);
     }
   }
 
@@ -464,7 +470,7 @@ class IdsApiWrapper {
   * @return string - id by which to identify the cached response of the current request.
   */
   protected function cacheId() {
-    return get_class($this) .':'. md5($this->request->getUrl());
+    return get_class($this) .':'. md5($this->getUrl());
   }
 
   /**
