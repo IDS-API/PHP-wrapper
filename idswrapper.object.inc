@@ -38,7 +38,8 @@ class IdsApiObject {
    *
    * @return a new IdsApiObject object
    */
-  public static function factory($object, $format, $object_type) {
+  // TODO: Check parameters. $format not used any more???
+  public static function factory($object, $object_type) {
     switch ($object_type) {
       case 'assets':
         return new IdsApiObjectAsset($object);
@@ -69,10 +70,16 @@ class IdsApiObject {
    * Constructor.
    */
   public function __construct($object) {
-    // Basic fields, present always in all responses.
-    $this->object_id = $object['object_id'];
-    $this->object_type = $object['object_type'];
-    $this->metadata_url = $object['metadata_url'];
+    // Basic fields, present in all responses.
+    if (isset($object['object_id'])) {
+      $this->object_id = $object['object_id'];
+    }
+    if (isset($object['object_type'])) {
+      $this->object_type = $object['object_type'];
+    }
+    if (isset($object['metadata_url'])) {
+      $this->metadata_url = $object['metadata_url'];
+    }
     // Additional properties common to all objects that might be present.
     if (isset($object['site'])) {
       $this->site = $object['site'];
@@ -144,10 +151,10 @@ abstract class IdsApiObjectAsset extends IdsApiObject {
       $this->asset_id = $object['asset_id'];
     }
     if (isset($object['date_created'])) {
-      $this->date_created = strtotime($object['date_created']);
+      $this->date_created = $object['date_created'];
     }
     if (isset($object['date_updated'])) {
-      $this->date_updated = strtotime($object['date_updated']);
+      $this->date_updated = $object['date_updated'];
     }
     if (isset($object['category_theme_array'])) {
       $this->category_theme_array = build_array_categories($object['category_theme_array']);
@@ -222,6 +229,9 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
   // Publication date. Date (example: 2004-01-01 00:00:00). Year that the research document was first published.
   public $publication_date;
 
+  // Publication year.
+  public $publication_year;
+
   // Publisher.
   public $publisher;
 
@@ -238,9 +248,14 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
   // External URLs. Array of strings. URLs of the full text document. 
   public $urls;
 
+  // Type of document. Array of strings.
+  public $document_type;
+  
+   // Type of document. Array of strings.
+  public $bridge_document_type;
+
   // Headline. String. A short version of the title or description of the research document.
-  // [Is not being returned by the API?]
-  // public $headline;
+  public $headline;
 
   /**
    * Constructor.
@@ -263,7 +278,10 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
       $this->language_array = build_array_languages($object['language_array']);
     }
     if (isset($object['publication_date'])) {
-      $this->publication_date = strtotime($object['publication_date']);
+      $this->publication_date = $object['publication_date'];
+    }
+    if (isset($object['publication_year'])) {
+      $this->publication_year = $object['publication_year'];
     }
     if (isset($object['publisher'])) {
       $this->publisher = $object['publisher'];
@@ -279,6 +297,12 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
     }
     if (isset($object['urls'])) {
       $this->urls = $object['urls'];
+    }
+    if (isset($object['category_sector'])) {
+      $this->bridge_document_type = $object['category_sector'];
+    }
+    if (isset($object['document_type'])) {
+      $this->document_type = $object['document_type'];
     }
   }
 
@@ -553,36 +577,44 @@ class IdsApiCount {
 
 function build_array_categories($array_categories) {
   $categories = array();
-  foreach (current($array_categories) as $category) {
-    $categories[] = new IdsApiObjectCategory($category);
+  if (is_array($array_categories)) {
+    foreach (current($array_categories) as $category) {
+      $categories[] = new IdsApiObjectCategory($category);
+    }
   }
   return $categories;
 }
 
 function build_array_countries($array_countries) {
   $countries = array();
-  foreach (current($array_countries) as $country) {
-    $countries[] = new IdsApiObjectCountry($country);
+  if (is_array($array_countries)) {
+    foreach (current($array_countries) as $country) {
+      $countries[] = new IdsApiObjectCountry($country);
+    }
   }
   return $countries;
 }
 
 function build_array_organisations($array_organisations) {
   $organisations = array();
-  foreach (current($array_organisations) as $organisation) {
-    $organisations[] = new IdsApiObjectAssetOrganisation($organisation);
+  if (is_array($array_organisations)) {
+    foreach (current($array_organisations) as $organisation) {
+      $organisations[] = new IdsApiObjectAssetOrganisation($organisation);
+    }
   }
   return $organisations;
 }
 
 function build_array_languages($language_array) {
   $languages = array();
-  foreach (current($language_array) as $language) {
-    if (isset($language['isocode'])) {
-      $languages[$language['isocode']] = array();
-      foreach ($language as $field => $value) {
-        $languages[$language['isocode']][$field] = $value;
-      }      
+  if (is_array($language_array)) {
+    foreach (current($language_array) as $language) {
+      if (isset($language['isocode'])) {
+        $languages[$language['isocode']] = array();
+        foreach ($language as $field => $value) {
+          $languages[$language['isocode']][$field] = $value;
+        }      
+      }
     }
   }
   return $languages;
