@@ -235,6 +235,9 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
   // Publisher.
   public $publisher;
 
+  // Publisher ID.
+  public $publisher_id;
+
   // Publisher country.
   public $publisher_country;
 
@@ -285,6 +288,9 @@ class IdsApiObjectAssetDocument extends IdsApiObjectAsset {
     }
     if (isset($object['publisher'])) {
       $this->publisher = $object['publisher'];
+    }
+    if (isset($object['publisher_id'])) {
+      $this->publisher_id = $object['publisher_id'];
     }
     if (isset($object['publisher_country'])) {
       $this->publisher_country = $object['publisher_country'];
