@@ -195,7 +195,7 @@ class IdsApiWrapper {
   * @param string $object_id - object_id value of the object to be retrieved.
   * @return IdsApiResponse - response object holding the data retrieved by the API call.
   */
-  public function get($object_type, $site, $api_key, $format = 'full', $object_id) {
+  public function get($object_type, $site, $api_key, $format = 'full', $object_id, $extra_fields = array()) {
     $this->request = new IdsApiRequest();
     $this->request->setTypeRequest('get');
     $this->request->setApiKey($api_key);
@@ -203,6 +203,7 @@ class IdsApiWrapper {
     $this->request->setFormat($format);
     $this->request->setObjectType($object_type);
     $this->request->setObjectId($object_id);
+    $this->setExtraFields($extra_fields);
     $response = $this->makeRequest();
     return $response;
   }
