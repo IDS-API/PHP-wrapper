@@ -371,6 +371,8 @@ class IdsApiObjectAssetOrganisation extends IdsApiObjectAsset {
   // Is this needed? It's only present in organisations. publication_date in documents has another meaning.
   //public $asset_publication_date;
 
+  public $logo_url'];
+  
   /**
    * Constructor.
    */
@@ -393,6 +395,9 @@ class IdsApiObjectAssetOrganisation extends IdsApiObjectAsset {
     }
     if (isset($object['location_country'])) {
       $this->location_country = $object['location_country'];
+    }
+    if (isset($object['logo_url'])) {
+      $this->logo_url = $object['logo_url'];
     }
   }
 
